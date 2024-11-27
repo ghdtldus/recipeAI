@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        #chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #messages {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        #messages div {
+            margin-bottom: 10px;
+        }
+        #user-input {
+            width: calc(100% - 100px);
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #send-btn {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+        }
+        #send-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with OpenAI</h1>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div>
+            <input type="text" id="user-input" placeholder="Type your message here...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("send-btn").addEventListener("click", async () => {
+            const userInput = document.getElementById("user-input").value;
+            if (!userInput) return;
+
+            // Display user's message in the chat window
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<div><b>You:</b> ${userInput}</div>`;
+
+            // Send the user input to the Flask server
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput }),
+            });
+            const data = await response.json();
+
+            // Display OpenAI's response
+            if (data.reply) {
+                messagesDiv.innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
+            } else if (data.error) {
+                messagesDiv.innerHTML += `<div><b>Error:</b> ${data.error}</div>`;
+            }
+
+            // Scroll to the bottom of the chat to show the latest message
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Clear the input field after sending the message
+            document.getElementById("user-input").value = "";
+        });
+    </script>
+</body>
+</html>
