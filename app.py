@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import openai
 from dotenv import load_dotenv
 import os
@@ -13,9 +13,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    # 파일을 UTF-8 인코딩으로 열기
-    with open("templates/index.html", "r", encoding="utf-8") as f:
-        return f.read()
+    return render_template("index.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():

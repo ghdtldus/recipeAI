@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f2f5;  /* 부드러운 회색 배경 */
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -44,27 +44,31 @@
             max-height: 70%;
             word-wrap: break-word;
         }
-        #messages div {
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        .recipe {
-            background-color: #e9f7f6;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+        .message {
+            display: flex;
+            align-items: flex-start;
             margin-bottom: 15px;
         }
-        .recipe h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
+        .bot-message, .user-message {
+            display: flex;
+            align-items: flex-start;
         }
-        .recipe ul {
-            padding-left: 20px;
-            list-style-type: none;
+        .message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
         }
-        .recipe ul li {
-            margin-bottom: 5px;
+        .message-content {
+            background-color: #e9f7f6;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            max-width: 70%;
+        }
+        .user-message .message-content {
+            background-color: #d3e5ff;
         }
         #user-input {
             width: calc(100% - 100px);
@@ -79,12 +83,12 @@
             font-size: 16px;
             cursor: pointer;
             border: none;
-            background-color: #4CAF50;
+            background-color: #5fadc7;
             color: white;
             border-radius: 8px;
         }
         #send-btn:hover {
-            background-color: #45a049;
+            background-color: #5fadc7;
         }
         .input-container {
             display: flex;
@@ -95,69 +99,64 @@
 </head>
 <body>
 
-    <div id="chat-container">
-        <h1> 쿠킹봇 </h1>
-        <div id="messages"></div>
-        <div class="input-container">
-            <input type="text" id="user-input" placeholder="재료를 입력해보세요..." autofocus>
-            <button id="send-btn">전송</button>
-        </div>
+<div id="chat-container">
+    <h1>쿠킹봇</h1>
+    <div id="messages"></div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="재료를 입력해보세요..." autofocus>
+        <button id="send-btn">전송</button>
     </div>
+</div>
 
-    <script>
-        function formatRecipeResponse(responseText) {
-            const recipes = responseText.split("\n\n");
-            let formattedResponse = '';
-            
-            recipes.forEach(recipe => {
-                if (recipe.trim()) {
-                    let cleanedRecipe = recipe
-                        .replace(/- 재료:/g, '')
-                        .replace(/- 조리법:/g, '')
-                        .trim();
+<script>
+    function addMessage(content, sender) {
+        const messagesDiv = document.getElementById("messages");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", sender === "bot" ? "bot-message" : "user-message");
 
-                    const lines = cleanedRecipe.split("\n");
-                    const title = lines[0].trim();
-                    const ingredients = lines[1].trim();
-                    const method = lines.slice(2).join("\n").trim();
+        const avatar = document.createElement("img");
+        avatar.src = sender === "bot" 
+            ? "/static/images/bot-avatar.jpg" 
+            : "/static/images/user-avatar.png";
+        avatar.alt = sender === "bot" ? "Bot Avatar" : "User Avatar";
 
-                    formattedResponse += `
-                        <div class="recipe">
-                            <h3>${title}</h3>
-                            <p><strong>재료:</strong> ${ingredients}</p>
-                            <p><strong>조리법:</strong><br/>${method}</p>
-                        </div>
-                    `;
-                }
-            });
+        const messageContent = document.createElement("div");
+        messageContent.classList.add("message-content");
+        messageContent.innerHTML = content;
 
-            return formattedResponse;
-        }
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(messageContent);
+        messagesDiv.appendChild(messageDiv);
 
-        document.getElementById("send-btn").addEventListener("click", async () => {
-            const userInput = document.getElementById("user-input").value;
-            if (!userInput) return;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 
-            const messagesDiv = document.getElementById("messages");
-            messagesDiv.innerHTML += `<div><b>사용자:</b> ${userInput}</div>`;
+    document.getElementById("send-btn").addEventListener("click", async () => {
+        const userInput = document.getElementById("user-input").value;
+        if (!userInput) return;
 
+        addMessage(userInput, "user");
+
+        try {
             const response = await fetch("/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: userInput })
             });
+
             const data = await response.json();
-
             if (data.reply) {
-                const formattedResponse = formatRecipeResponse(data.reply);
-                messagesDiv.innerHTML += `<div><b>봇:</b> ${formattedResponse}</div>`;
+                addMessage(data.reply.replace(/\n/g, "<br>"), "bot");
             } else if (data.error) {
-                messagesDiv.innerHTML += `<div><b>오류:</b> ${data.error}</div>`;
+                addMessage(`오류: ${data.error}`, "bot");
             }
+        } catch (error) {
+            addMessage("서버와 통신 중 문제가 발생했습니다.", "bot");
+        }
 
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            document.getElementById("user-input").value = "";
-        });
-    </script>
+        document.getElementById("user-input").value = "";
+    });
+</script>
+
 </body>
 </html>
