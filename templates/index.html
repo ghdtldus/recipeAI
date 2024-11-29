@@ -30,6 +30,24 @@
         #messages div {
             margin-bottom: 10px;
         }
+        .recipe {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #f1f1f1;
+        }
+        .recipe h3 {
+            margin: 0;
+            padding: 0;
+        }
+        .recipe ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .recipe ul li {
+            margin-bottom: 5px;
+        }
         #user-input {
             width: calc(100% - 100px);
             padding: 10px;
@@ -62,33 +80,62 @@
     </div>
 
     <script>
+        function formatRecipeResponse(responseText) {
+            // 응답을 두 개 이상의 레시피로 나눕니다 (빈 줄로 구분)
+            const recipes = responseText.split("\n\n");  // 각 레시피는 빈 줄로 구분됩니다.
+            let formattedResponse = '';
+            
+            recipes.forEach(recipe => {
+                if (recipe.trim()) {
+                    // '재료:'와 '조리법:' 중복 제거
+                    let cleanedRecipe = recipe
+                        .replace(/- 재료:/g, '')  // 중복된 '- 재료:' 제거
+                        .replace(/- 조리법:/g, '')  // 중복된 '- 조리법:' 제거
+                        .trim();  // 불필요한 공백 제거
+
+                    // 레시피 제목, 재료, 조리법을 나누기 위해 첫 번째 줄은 제목, 두 번째 줄은 재료, 세 번째 줄 이후는 조리법으로 나눔
+                    const lines = cleanedRecipe.split("\n");
+                    const title = lines[0].trim();  // 첫 번째 줄은 제목
+                    const ingredients = lines[1].trim();  // 두 번째 줄은 재료
+                    const method = lines.slice(2).join("\n").trim();  // 세 번째 줄 이후는 조리법
+
+                    // HTML 형식으로 포맷팅
+                    formattedResponse += `
+                        <div class="recipe">
+                            <h3>${title}</h3>  <!-- 요리 제목 -->
+                            <p><strong>재료:</strong> ${ingredients}</p>  <!-- 재료 -->
+                            <p><strong>조리법:</strong><br/>${method}</p>  <!-- 조리법 -->
+                        </div>
+                    `;
+                }
+            });
+
+            return formattedResponse;
+        }
+
+
         document.getElementById("send-btn").addEventListener("click", async () => {
             const userInput = document.getElementById("user-input").value;
             if (!userInput) return;
 
-            // Display user's message in the chat window
             const messagesDiv = document.getElementById("messages");
             messagesDiv.innerHTML += `<div><b>You:</b> ${userInput}</div>`;
 
-            // Send the user input to the Flask server
             const response = await fetch("/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: userInput }),
+                body: JSON.stringify({ message: userInput })
             });
             const data = await response.json();
 
-            // Display OpenAI's response
             if (data.reply) {
-                messagesDiv.innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
+                const formattedResponse = formatRecipeResponse(data.reply);
+                messagesDiv.innerHTML += `<div><b>Bot:</b> ${formattedResponse}</div>`;
             } else if (data.error) {
                 messagesDiv.innerHTML += `<div><b>Error:</b> ${data.error}</div>`;
             }
 
-            // Scroll to the bottom of the chat to show the latest message
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-            // Clear the input field after sending the message
             document.getElementById("user-input").value = "";
         });
     </script>
