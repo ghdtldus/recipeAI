@@ -49,9 +49,16 @@
             align-items: flex-start;
             margin-bottom: 15px;
         }
-        .bot-message, .user-message {
+        .bot-message {
             display: flex;
             align-items: flex-start;
+            justify-content: flex-end; /* 메시지를 오른쪽으로 정렬 */
+        }
+
+        .user-message {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start; /* 메시지를 왼쪽으로 정렬 */
         }
         .message img {
             width: 40px;
