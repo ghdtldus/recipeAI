@@ -64,6 +64,16 @@ h1 {
 .user-message .message-content {
     background-color: #d3e5ff;
 }
+
+/* 이미지가 생성되었을 때 */
+.message-content img {
+    width: 100%;         /* 이미지 크기를 최대화 */
+    height: auto;        /* 비율에 맞게 자동 조정 */
+    border-radius: 0;    /* 네모 모양으로 변경 */
+    object-fit: cover;   /* 이미지 비율 맞추기 */
+}
+
+/* 사용자 입력 */
 #user-input {
     width: calc(100% - 100px);
     padding: 12px;
