@@ -4,99 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenAI Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        #chat-container {
-            width: 90%;
-            max-width: 800px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-        }
-        #messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            max-height: 70%;
-            word-wrap: break-word;
-        }
-        .message {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        .bot-message {
-            justify-content: flex-end;
-        }
-        .user-message {
-            justify-content: flex-start;
-        }
-        .message img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 10px;
-        }
-        .message-content {
-            background-color: #e9f7f6;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            max-width: 70%;
-        }
-        .user-message .message-content {
-            background-color: #d3e5ff;
-        }
-        #user-input {
-            width: calc(100% - 100px);
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        #send-btn, #generate-btn {
-            width: 80px;
-            padding: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            background-color: #5fadc7;
-            color: white;
-            border-radius: 8px;
-        }
-        #send-btn:hover, #generate-btn:hover {
-            background-color: #4792b1;
-        }
-        .input-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
@@ -111,6 +19,7 @@
 </div>
 
 <script>
+    // JavaScript 부분은 그대로 유지
     function addMessage(content, sender) {
         const messagesDiv = document.getElementById("messages");
         const messageDiv = document.createElement("div");
