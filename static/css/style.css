@@ -99,3 +99,67 @@ h1 {
     justify-content: space-between;
     align-items: center;
 }
+
+
+/* 음식 카테고리 버튼 영역 */
+#food-categories {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: auto;
+    max-width: 800px;
+}
+
+.category-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    width: auto; /* 버튼 너비를 내용에 맞게 자동으로 설정 */
+    max-width: 300px; /* 최대 너비를 설정하여 너무 길어지지 않도록 함 */
+    text-align: left;
+}
+.category-btn.active {
+    background-color: #45a049;  /* 클릭된 카테고리 버튼 색상 */
+    color: white;
+}
+
+.category-btn:hover {
+    background-color: #45a049;
+}
+
+/* 재료 버튼을 표시할 컨테이너 */
+#ingredient-options {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    gap: 10px; /* 버튼 간격을 설정 */
+}
+
+.ingredient-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    width: auto; /* 버튼의 너비를 내용에 맞게 자동으로 설정 */
+    min-width: 100px; /* 버튼의 최소 너비를 설정 */
+    text-align: center;
+    white-space: nowrap; /* 내용이 길어져도 한 줄로 표시되게 함 */
+    overflow: hidden; /* 글자 넘침 방지 */
+    text-overflow: ellipsis; /* 넘치는 글자에 '...' 표시 */
+}
+
+.ingredient-btn:hover {
+    background-color: #45a049;
+}

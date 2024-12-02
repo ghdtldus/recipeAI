@@ -18,7 +18,86 @@
     </div>
 </div>
 
+
+<div id="food-categories">
+    <!-- 카테고리 버튼 -->
+    <button class="category-btn" data-category="채소류">채소류</button>
+    <button class="category-btn" data-category="과일류">과일류</button>
+    <button class="category-btn" data-category="곡류">곡류</button>
+    <button class="category-btn" data-category="단백질">단백질</button>
+    <button class="category-btn" data-category="유제품">유제품</button>
+    <button class="category-btn" data-category="견과류 및 씨앗">견과류 및 씨앗</button>
+    <button class="category-btn" data-category="향신료 및 허브">향신료 및 허브</button>
+    <button class="category-btn" data-category="기타">기타</button>
+</div>
+
+<div id="ingredient-options"></div>  <!-- 카테고리별 재료 버튼들이 나타날 공간 -->
+
+
+
 <script>
+    // 카테고리 버튼 클릭 시 해당 카테고리의 재료 버튼들 나타내기
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    const ingredientOptions = document.getElementById('ingredient-options');
+
+    categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        // 모든 카테고리 버튼에서 'active' 클래스를 제거
+        categoryButtons.forEach(btn => btn.classList.remove('active'));
+
+        // 클릭된 버튼에 'active' 클래스 추가
+        button.classList.add('active');
+
+        const category = button.getAttribute('data-category');
+        displayIngredients(category);
+    });
+});
+
+
+    // 각 카테고리에 맞는 재료 버튼을 표시하는 함수
+function displayIngredients(category) {
+    let ingredients = [];
+
+    if (category === "채소류") {
+        ingredients = ["양파", "당근", "브로콜리"];
+    } else if (category === "과일류") {
+        ingredients = ["사과", "바나나", "오렌지"];
+    } else if (category === "곡류") {
+        ingredients = ["쌀", "밀", "보리"];
+    } else if (category === "단백질") {
+        ingredients = ["소고기", "닭고기", "돼지고기", "생선", "두부"];
+    } else if (category === "유제품") {
+        ingredients = ["우유", "치즈", "요거트"];
+    } else if (category === "견과류 및 씨앗") {
+        ingredients = ["아몬드", "호두", "해바라기씨"];
+    } else if (category === "향신료 및 허브") {
+        ingredients = ["소금", "후추", "바질", "파슬리"];
+    } else if (category === "기타") {
+        ingredients = ["오일", "소스", "발효식품"];
+    }
+
+    // 재료 버튼들 생성
+    ingredientOptions.innerHTML = '';  // 이전에 나온 버튼들 지우기
+    ingredients.forEach(ingredient => {
+        const button = document.createElement('button');
+        button.classList.add('ingredient-btn');
+        button.textContent = ingredient;
+        button.addEventListener('click', () => {
+            // 재료가 입력란에 추가되도록
+            const userInput = document.getElementById('user-input');
+            userInput.value += (userInput.value ? ", " : "") + ingredient;  // 기존에 있으면 ,로 구분
+        });
+        ingredientOptions.appendChild(button);
+    });
+
+    // 재료 버튼들이 나타나도록 display: block 설정
+    ingredientOptions.style.display = 'block';
+}
+
+
+
+
+
     // JavaScript 부분은 그대로 유지
     function addMessage(content, sender) {
         const messagesDiv = document.getElementById("messages");
