@@ -25,7 +25,7 @@ def chat():
     try:
         # 기본 레시피 생성
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {
                     "role": "system",
