@@ -48,12 +48,32 @@ def chat():
                     "content": user_input
                 }
             ],
-            max_tokens=1000,  # 더 많은 레시피를 나열할 수 있도록 토큰 수 증가
+            max_tokens=1000,
             temperature=0.8
         )
 
         reply = response['choices'][0]['message']['content']
         return jsonify({"reply": reply})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/generate-image", methods=["POST"])
+def generate_image():
+    description = request.json.get("description", "")
+
+    if not description:
+        return jsonify({"error": "No description provided"}), 400
+
+    try:
+        # DALL·E 이미지 생성
+        image_response = openai.Image.create(
+            prompt=description,
+            n=1,
+            size="512x512"
+        )
+        image_url = image_response['data'][0]['url']
+        return jsonify({"image_url": image_url})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

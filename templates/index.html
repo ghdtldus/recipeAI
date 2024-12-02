@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenAI Chat</title>
     <style>
-        /* 기본적인 스타일링 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -50,15 +49,10 @@
             margin-bottom: 15px;
         }
         .bot-message {
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-end; /* 메시지를 오른쪽으로 정렬 */
+            justify-content: flex-end;
         }
-
         .user-message {
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start; /* 메시지를 왼쪽으로 정렬 */
+            justify-content: flex-start;
         }
         .message img {
             width: 40px;
@@ -84,7 +78,7 @@
             border: 1px solid #ccc;
             border-radius: 8px;
         }
-        #send-btn {
+        #send-btn, #generate-btn {
             width: 80px;
             padding: 12px;
             font-size: 16px;
@@ -94,8 +88,8 @@
             color: white;
             border-radius: 8px;
         }
-        #send-btn:hover {
-            background-color: #5fadc7;
+        #send-btn:hover, #generate-btn:hover {
+            background-color: #4792b1;
         }
         .input-container {
             display: flex;
@@ -110,8 +104,9 @@
     <h1>쿠킹봇</h1>
     <div id="messages"></div>
     <div class="input-container">
-        <input type="text" id="user-input" placeholder="재료를 입력해보세요..." autofocus>
+        <input type="text" id="user-input" placeholder="재료 또는 이미지 설명을 입력하세요..." autofocus>
         <button id="send-btn">전송</button>
+        <button id="generate-btn">이미지</button>
     </div>
 </div>
 
@@ -129,7 +124,16 @@
 
         const messageContent = document.createElement("div");
         messageContent.classList.add("message-content");
-        messageContent.innerHTML = content;
+
+        if (content.startsWith("http")) {
+            const image = document.createElement("img");
+            image.src = content;
+            image.alt = "Generated Image";
+            image.style.maxWidth = "100%";
+            messageContent.appendChild(image);
+        } else {
+            messageContent.innerHTML = content;
+        }
 
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(messageContent);
@@ -159,6 +163,32 @@
             }
         } catch (error) {
             addMessage("서버와 통신 중 문제가 발생했습니다.", "bot");
+        }
+
+        document.getElementById("user-input").value = "";
+    });
+
+    document.getElementById("generate-btn").addEventListener("click", async () => {
+        const description = document.getElementById("user-input").value;
+        if (!description) return;
+
+        addMessage(description, "user");
+
+        try {
+            const response = await fetch("/generate-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description })
+            });
+
+            const data = await response.json();
+            if (data.image_url) {
+                addMessage(data.image_url, "bot");
+            } else if (data.error) {
+                addMessage(`오류: ${data.error}`, "bot");
+            }
+        } catch (error) {
+            addMessage("이미지 생성 중 문제가 발생했습니다.", "bot");
         }
 
         document.getElementById("user-input").value = "";
