@@ -1,10 +1,20 @@
 from flask import Flask, request, jsonify, render_template
 import openai
+from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+from collections import Counter
+
 
 # 환경 변수 로드
 load_dotenv()
+
+
+# MongoDB 연결
+mongo_client = MongoClient(os.getenv("MONGO_URI"))  # 환경변수에서 MongoDB URI 가져오기
+db = mongo_client["cooking_bot"]  # 데이터베이스 선택
+chat_collection = db["chats"]  # 대화 기록을 저장할 컬렉션
+
 
 # API 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -53,6 +63,11 @@ def chat():
         )
 
         reply = response['choices'][0]['message']['content']
+
+        # MongoDB에 대화 데이터 저장
+        chat_data = {"user_input": user_input, "bot_reply": reply}
+        chat_collection.insert_one(chat_data)
+
         return jsonify({"reply": reply})
 
     except Exception as e:
@@ -77,6 +92,26 @@ def generate_image():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@app.route("/history", methods=["GET"])
+def get_history():
+    history = list(chat_collection.find({}, {"_id": 0}).sort("_id", -1).limit(10))  
+    return jsonify({"history": history})
+
+@app.route("/popular-ingredients", methods=["GET"])
+def get_popular_ingredients():
+    chats = list(chat_collection.find({}, {"_id": 0, "user_input": 1}))  # 유저 입력만 가져옴
+    ingredient_counter = Counter()
+
+    for chat in chats:
+        ingredients = chat["user_input"].split(", ")  # 입력된 재료를 리스트로 변환
+        ingredient_counter.update(ingredients)  # 등장 횟수 카운트
+
+    top_ingredients = ingredient_counter.most_common(5)  # 가장 많이 등장한 5가지 재료
+    return jsonify({"popular_ingredients": top_ingredients})
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
