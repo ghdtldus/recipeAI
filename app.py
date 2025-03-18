@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import openai
 from pymongo import MongoClient
+from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
 import os
 from collections import Counter
@@ -9,11 +10,21 @@ from collections import Counter
 # 환경 변수 로드
 load_dotenv()
 
+MONGO_URI = os.getenv("MONGO_URI")
 
-# MongoDB 연결
-mongo_client = MongoClient(os.getenv("MONGO_URI"))  # 환경변수에서 MongoDB URI 가져오기
-db = mongo_client["cooking_bot"]  # 데이터베이스 선택
-chat_collection = db["chats"]  # 대화 기록을 저장할 컬렉션
+if not MONGO_URI:
+    print("[ERROR] MONGO_URI가 None입니다! 환경 변수를 확인하세요.")
+else:
+    print(f"[DEBUG] MONGO_URI 로드 성공: {MONGO_URI}")
+
+
+try:
+    client = MongoClient(MONGO_URI, server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
+    db = client["cooking_bot"]  # 데이터베이스 선택
+    chat_collection = db["chats"]  # 대화 기록을 저장할 컬렉션
+    print("MongoDB Atlas에 성공적으로 연결되었습니다!")  # 연결 확인 로그 추가
+except Exception as e:
+    print(f"MongoDB 연결 실패: {e}")
 
 
 # API 키 설정
@@ -112,4 +123,4 @@ def get_popular_ingredients():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=False)
