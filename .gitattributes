@@ -1,0 +1,7 @@
+# Python 파일만 언어 통계에 반영
+*.py linguist-detectable=true
+
+# HTML, CSS, JS는 무시
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
