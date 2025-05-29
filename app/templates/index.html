@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenAI Chat</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -32,9 +33,44 @@
 </div>
 
 <div id="ingredient-options"></div>  <!-- 카테고리별 재료 버튼들이 나타날 공간 -->
-<div id="popular-ingredients"></div>  <!-- 인기 재료가 표시될 공간 -->
+<div id="popular-ingredients" class="alert alert-info" role="alert">  
+    <h3>인기 재료</h3>
+    <div id="popular-ingredient-list"></div>  <!-- 인기 재료 리스트가 여기에 추가됩니다 -->
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+        // 페이지 로드 시 실행되도록 설정
+        window.onload = function() {
+        loadHistory();  // 기존 대화 기록 불러오기
+        loadPopularIngredients();  // 인기 재료 불러오기
+    };
+
+    async function loadPopularIngredients() {
+        try {
+            const response = await fetch("/popular-ingredients");
+            const data = await response.json();
+            const popularDiv = document.getElementById("popular-ingredient-list");
+
+            if (!popularDiv) {
+                console.error("인기 재료를 표시할 div가 없습니다!");
+                return;
+            }
+
+            popularDiv.innerHTML = ""; // 기존 내용 초기화
+            data.popular_ingredients.forEach(([ingredient, count]) => {
+                popularDiv.innerHTML += `<p>${ingredient} (${count}회)</p>`;
+            });
+        } catch (error) {
+            console.error("인기 재료를 불러오는 중 오류 발생:", error);
+        }
+    }
+
+
     //카테고리 버튼 클릭 이벤트 설정
     const categoryButtons = document.querySelectorAll('.category-btn');
     const ingredientOptions = document.getElementById('ingredient-options');
